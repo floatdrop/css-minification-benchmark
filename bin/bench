@@ -111,7 +111,7 @@ var benchmark = function(filename) {
 
       sizes.push(minified.length);
       times.push(took);
-      row.push({ size: minified.length, time: took });
+      row.push({ size: minified.length, diff: source.length - minified.length, time: took });
       process.stderr.write('.');
     } catch (e) {
       row.push({ size: -1, time: -1 });
@@ -123,40 +123,11 @@ var benchmark = function(filename) {
   times = times.sort(comparator);
 
   row = row.map(function(result) {
-    if (result.time == -1)
-      return styled('error', 'red', 'danger');
-    if (typeof result == 'string')
-      return result;
 
-    // var value = result.size + ' bytes (' + result.time + ' ms)';
-    var value = result.size + ' bytes';
-    var valueStyled = value;
-    var formatted = asHTML ? {} : '';
-
-    if (result.size == sizes[sizes.length - 1] && sizes.length > 1 && sizes[0] != sizes[sizes.length - 1])
-      valueStyled = styled(value, 'red', 'danger');
-    if (result.size == sizes[0])
-      valueStyled = styled(value, 'green', 'success');
-
-    if (asHTML) {
-      formatted.size = valueStyled.value || value;
-      formatted.sizeClass = valueStyled.class || 'default';
-    }
-    else
-      formatted = valueStyled;
-
-    valueStyled = value = result.time + ' ms';
-
-    if (result.time == times[times.length - 1] && times.length > 1 && times[0] != times[times.length - 1])
-      valueStyled = styled(value, 'red', 'danger');
-    if (result.time == times[0])
-      valueStyled = styled(value, 'green', 'success');
-    if (asHTML) {
-      formatted.time = valueStyled.value || value;
-      formatted.timeClass = valueStyled.class || 'default';
-    }
-    else
-      formatted += ' - ' + valueStyled;
+    var formatted = {
+        size: Math.round(result.diff / result.time),
+        sizeClass: 'default'
+    };
 
     return formatted;
   });
